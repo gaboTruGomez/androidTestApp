@@ -6,8 +6,10 @@
 - OKHTTP & GSON
   - Used OkHttp for an async download of Json
   - Used Gson to parse Json to custom object (Animal)
-- ListView 
-  - With custom adapter for displaying custom Object (Animal)
+- RecyclerView
+  - With custom adapter for displaying custom object and image (Animal)
+- Picasso
+  - used to download and set image downloaded from URL
 
 ## Author
 Gabriel Trujillo Gómez
