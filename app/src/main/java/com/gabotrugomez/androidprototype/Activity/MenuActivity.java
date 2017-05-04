@@ -3,6 +3,8 @@ package com.gabotrugomez.androidprototype.Activity;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -10,15 +12,19 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.gabotrugomez.androidprototype.Adapter.ListViewAdapter;
+import com.gabotrugomez.androidprototype.Adapter.RecyclerViewCustomAdapter;
 import com.gabotrugomez.androidprototype.Model.Animal;
 import com.gabotrugomez.androidprototype.R;
+import com.gabotrugomez.androidprototype.Views.SimpleDividerItemDecorator;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -29,11 +35,12 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-public class MenuActivity extends AppCompatActivity
+public class MenuActivity extends AppCompatActivity implements Runnable
 {
     private ListView animalsListView;
     private ArrayList<Animal> animalsList;
     private OkHttpClient okHttpClient;
+    private RecyclerView recyclerView;
 
 
     @Override
@@ -42,15 +49,28 @@ public class MenuActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_menu);
 
-        okHttpClient = new OkHttpClient();
 
         downloadJsonAndSetAdapter();
     }
 
+    private void setUpUI()
+    {
+        recyclerView = (RecyclerView) findViewById(R.id.recycler_view_menu_activity);
+        RecyclerView.LayoutManager layoutManager = new GridLayoutManager(getApplicationContext(), 1);
+
+        recyclerView.setLayoutManager(layoutManager);
+
+        RecyclerViewCustomAdapter adapter = new RecyclerViewCustomAdapter(getApplicationContext(), animalsList, MenuActivity.this);
+        recyclerView.setAdapter(adapter);
+        recyclerView.addItemDecoration(new SimpleDividerItemDecorator(this));
+    }
+
     private void downloadJsonAndSetAdapter()
     {
+        okHttpClient = new OkHttpClient();
+
         Request request = new Request.Builder()
-                                .url("https://flavioruben.herokuapp.com/data.json")
+                                .url("https://storage.googleapis.com/test.moovinfood.com/altomobile_prototype_step3.json")
                                 .build();
 
         okHttpClient.newCall(request).enqueue(new Callback() {
@@ -74,6 +94,7 @@ public class MenuActivity extends AppCompatActivity
 
                         if (animalsJsonArray.length() > 0)
                         {
+                            Log.i("APP-INFO", animalsJsonArray.toString(4));
                             getAnimalsFromJson(animalsJsonArray);
                         }
                         else
@@ -91,27 +112,28 @@ public class MenuActivity extends AppCompatActivity
 
     private void getAnimalsFromJson(JSONArray jsonArray) throws JSONException
     {
-        ArrayList<Animal> animals = new ArrayList<>();
         Gson gson = new Gson();
 
-        for (int i = 0; i < jsonArray.length(); i++)
-        {
-            JSONObject jsonObject = jsonArray.getJSONObject(i);
-            Animal animal = gson.fromJson(jsonObject.toString(), Animal.class);
-            animals.add(animal);
-        }
+        Type type = new TypeToken<List<Animal>>() {}.getType();
+        animalsList = gson.fromJson(jsonArray.toString(), type);
 
-        animalsList = animals;
         setUIElements();
     }
 
     private void setUIElements()
     {
+
+        /*
         MenuActivity.this.runOnUiThread(new Runnable()
         {
             @Override
             public void run()
             {
+
+                //setUpUI();
+
+                // STEP 2 PROTOTYPE
+                /*
                 animalsListView = (ListView) findViewById(R.id.list_view_menu_activity);
                 ListViewAdapter adapter = new ListViewAdapter(MenuActivity.this, animalsList);
                 animalsListView.setAdapter(adapter);
@@ -123,8 +145,15 @@ public class MenuActivity extends AppCompatActivity
                         Toast.makeText(MenuActivity.this, "Life: " + animalsList.get(position).getLife(), Toast.LENGTH_SHORT).show();
                     }
                 });
-            }
-        });
+                */
+            //}
+        //});
+        runOnUiThread(this);
+    }
 
+    @Override
+    public void run()
+    {
+        setUpUI();
     }
 }

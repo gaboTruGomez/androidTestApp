@@ -9,6 +9,8 @@ public class Animal
     String name;
     int life;
     int id;
+    int type;
+    String pictureURL;
 
     public String getName() {
         return name;
@@ -32,5 +34,21 @@ public class Animal
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public int getType() {
+        return type;
+    }
+
+    public void setType(int type) {
+        this.type = type;
+    }
+
+    public String getPictureURL() {
+        return pictureURL;
+    }
+
+    public void setPictureURL(String pictureURL) {
+        this.pictureURL = pictureURL;
     }
 }
